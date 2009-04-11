@@ -1,6 +1,6 @@
 module Scrubyt
   class ResultNode < Array
-    OUTPUT_OPTIONS = [:write_text]
+    OUTPUT_OPTIONS = [:write_text, :format_text]
 
     attr_accessor :name, :result, :options, :generated_by_leaf
 
@@ -117,8 +117,11 @@ module Scrubyt
       children = self.select{ |child| child.has_content? }
       if children.empty?
         if result.is_a? String
+ 	  			@result = @options[:format_text].call(@result) if @options[:format_text] && @result        
           lines << "<#{name}>#{result}</#{name}>"
         elsif write_text && !to_s.empty?
+				  text = ERB::Util.html_escape(to_s)
+	  			text = @options[:format_text].call(text) if @options[:format_text] && text        
           lines << "<#{name}>#{ERB::Util.html_escape(to_s)}</#{name}>"
         else
           if @options[:default]
