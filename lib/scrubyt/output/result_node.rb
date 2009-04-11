@@ -122,7 +122,7 @@ module Scrubyt
         elsif write_text && !to_s.empty?
 				  text = ERB::Util.html_escape(to_s)
 	  			text = @options[:format_text].call(text) if @options[:format_text] && text        
-          lines << "<#{name}>#{ERB::Util.html_escape(to_s)}</#{name}>"
+          lines << "<#{name}>#{text}</#{name}>"
         else
           if @options[:default]
             lines << "<#{name}>#{@options[:default]}</#{name}>"
