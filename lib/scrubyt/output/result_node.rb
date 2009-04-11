@@ -1,6 +1,6 @@
 module Scrubyt
   class ResultNode < Array
-    OUTPUT_OPTIONS = [:write_text, :format_text]
+    OUTPUT_OPTIONS = [:write_text, :format_output]
 
     attr_accessor :name, :result, :options, :generated_by_leaf
 
@@ -23,6 +23,7 @@ module Scrubyt
       text = (@result.is_a? String) ? @result : @result.inner_html.gsub(/<.*?>/, '')
       text = SharedUtils.unescape_entities(text)
       text.strip!
+      text = @options[:format_output].call(text) if @options[:format_output] && text            
       if (@options[:default] && ((text == '') || (text == @options[:default])))
         @options[:default]
       else
@@ -117,12 +118,10 @@ module Scrubyt
       children = self.select{ |child| child.has_content? }
       if children.empty?
         if result.is_a? String
- 	  			@result = @options[:format_text].call(@result) if @options[:format_text] && @result        
+ 	  			@result = @options[:format_output].call(@result) if @options[:format_output] && @result        
           lines << "<#{name}>#{result}</#{name}>"
         elsif write_text && !to_s.empty?
-				  text = ERB::Util.html_escape(to_s)
-	  			text = @options[:format_text].call(text) if @options[:format_text] && text        
-          lines << "<#{name}>#{text}</#{name}>"
+          lines << "<#{name}>#{ERB::Util.html_escape(to_s)}</#{name}>"
         else
           if @options[:default]
             lines << "<#{name}>#{@options[:default]}</#{name}>"
